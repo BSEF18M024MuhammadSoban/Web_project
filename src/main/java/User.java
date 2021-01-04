@@ -52,7 +52,7 @@ public class User {
         HttpSession session = request.getSession();
 
         if(session.getAttribute("user_role")==null || !session.getAttribute("user_role").equals("admin"))
-            return "{status:false, \"error\":\"You are not authorized to perform this action\"}";
+            return "{\"status\":false, \"error\":\"You are not authorized to perform this action\"}";
 
         DatabaseConnector db = new DatabaseConnector();
         String sql = "delete from user where id=?";

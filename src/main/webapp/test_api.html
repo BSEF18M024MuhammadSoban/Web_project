@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test APIs</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+    <textarea id="json" style="display: block" rows="5">
+
+    </textarea>
+    <button onclick="getData()">Get Response</button>
+    <div id="response"></div>
+    <script>
+        function getData(){
+            var data = JSON.parse($('#json').val());
+            $.post("./api_handler", data, function(data, status){ $('#response').html(JSON.stringify(data)) });
+        }
+    </script>
+</body>
+</html>

@@ -10,7 +10,7 @@
   </servlet>
   <servlet-mapping>
     <servlet-name>API_Handling</servlet-name>
-    <url-pattern>/api_hanlder</url-pattern>
+    <url-pattern>/api_handler</url-pattern>
   </servlet-mapping>
 
 </web-app>
