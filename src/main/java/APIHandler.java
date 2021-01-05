@@ -21,7 +21,7 @@ public class APIHandler extends HttpServlet {
             }
         }
         catch (SQLException e) {
-            response.getWriter().println("{\"status\":false, \"error\":\"Connection Error!\"}");
+            response.getWriter().println("{\"status\":false, \"result\":\"Connection Error\", \"error\":\""+e.getMessage()+"\"}");
         }
         catch (ClassNotFoundException e) {
             response.getWriter().println("{\"status\":false, \"error\":\"Server Error!\"}");
