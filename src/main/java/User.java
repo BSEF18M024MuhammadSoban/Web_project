@@ -72,10 +72,17 @@ public class User {
         String role = request.getParameter("role");
         String dateOfBirth = request.getParameter("dateOfBirth");
 
+
         if(session.getAttribute("user_id")==null)
             return "{\"status\":false, \"result\":\"You are not logged in\"}";
 
         DatabaseConnector db = new DatabaseConnector();
+
+        String emailDuplicateCheck = "SELECT email FROM user WHERE user.email = ?;";
+
+        ResultSet emailResult = db.getData(emailDuplicateCheck,email);
+        if(emailResult.next())
+            return "{\"status\":false, \"error\":\"Email already registered\"}";
 
         String sql = "SELECT id from user where user.id=?";
 
@@ -141,17 +148,13 @@ public class User {
 
         ResultSet usernameResult = db.getData(usernameDuplicateCheck,username);
         if(usernameResult.next())
-        {
             return "{\"status\":false, \"error\":\"Username already taken\"}";
-        }
 
         String emailDuplicateCheck = "SELECT email FROM user WHERE user.email = ?;";
 
         ResultSet emailResult = db.getData(emailDuplicateCheck,email);
         if(emailResult.next())
-        {
             return "{\"status\":false, \"error\":\"Email already registered\"}";
-        }
 
         String sql = "INSERT INTO user (name, username, password, email, role, date_of_birth) VALUES (?,?,md5(?),?,?,STR_TO_DATE(?, '%d-%m-%Y'))";
         int response = db.execute(sql,name, username, password, email, role, dateOfBirth);
