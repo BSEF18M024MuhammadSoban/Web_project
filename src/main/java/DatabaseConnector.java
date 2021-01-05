@@ -23,7 +23,9 @@ public class DatabaseConnector {
     }
 
     public int execute(String statement, Object... parameters) throws SQLException {
+        System.out.println(statement);
         PreparedStatement stat = conn.prepareStatement(statement);
+        System.out.println(stat);
         for (int i = 0; i < parameters.length; i++) {
             stat.setObject(i + 1, parameters[i]);
         }

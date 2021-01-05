@@ -2,6 +2,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 
 public class User {
     public static String performAction(HttpServletRequest request) throws SQLException, ClassNotFoundException {
@@ -64,6 +65,33 @@ public class User {
             return "{\"status\":false, \"error\":\"User id is invalid\"}";
     }
     private static String updateUser(HttpServletRequest request) throws SQLException, ClassNotFoundException {
+        HttpSession session = request.getSession();
+        String name = request.getParameter("name");
+        String password = request.getParameter("password");
+        String email = request.getParameter("email");
+        String role = request.getParameter("role");
+        String dateOfBirth = request.getParameter("dateOfBirth");
+
+        if(session.getAttribute("user_id")==null)
+            return "{\"status\":false, \"result\":\"You are not logged in\"}";
+
+        DatabaseConnector db = new DatabaseConnector();
+
+        String sql = "SELECT id from user where user.id=?";
+
+        ResultSet result = db.getData(sql,session.getAttribute("user_id"));
+
+        if(result.next())
+        {
+            sql = "UPDATE user set name = ?, password = ?, email = ?, role = ?, date_of_birth = STR_TO_DATE(?, '%d-%m-%Y')";
+            int response = db.execute(sql,name,password,email,role,dateOfBirth);
+            if(response!=0)
+                return "{\"status\":true, \"result\":\"account updated successfully\"}";
+            else
+                return "{\"status\":false, \"result\":\"account could not be updated\"}";
+        }
+
+
         /*
             INPUTS
             -----------------------------
@@ -98,6 +126,39 @@ public class User {
         return "";
     }
     private static String createUser(HttpServletRequest request) throws SQLException, ClassNotFoundException {
+        String name = request.getParameter("name");
+        String username = request.getParameter("username");
+        String password = request.getParameter("password");
+        String email = request.getParameter("email");
+        String role = request.getParameter("role");
+        String dateOfBirth = request.getParameter("dateOfBirth");
+
+        DatabaseConnector db = new DatabaseConnector();
+
+        String usernameDuplicateCheck = "SELECT username FROM user WHERE user.username = ?;";
+
+        ResultSet usernameResult = db.getData(usernameDuplicateCheck,username);
+        if(usernameResult.next())
+        {
+            return "{\"status\":false, \"error\":\"Username already taken\"}";
+        }
+
+        String emailDuplicateCheck = "SELECT email FROM user WHERE user.email = ?;";
+
+        ResultSet emailResult = db.getData(emailDuplicateCheck,email);
+        if(emailResult.next())
+        {
+            return "{\"status\":false, \"error\":\"Email already registered\"}";
+        }
+
+        String sql = "INSERT INTO user (name, username, password, email, role, date_of_birth) VALUES (?,?,md5(?),?,?,STR_TO_DATE(?, '%d-%m-%Y'))";
+        int response = db.execute(sql,name, username, password, email, role, dateOfBirth);
+        System.out.println(response);
+        if(response != 0)
+            return "{\"status\":true, \"result\":\"Profile Created Successfully\"}";
+        else
+            return "{\"status\":false, \"result\":\"Profile Could not be created\"}";
+
         /*
             INPUTS
             -----------------------------
@@ -119,6 +180,5 @@ public class User {
                 2. if user is not created
                     return status=false, error=unable to perform action
         */
-        return "";
     }
 }

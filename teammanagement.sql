@@ -36,6 +36,8 @@ CREATE TABLE `user` (
   `date_of_birth` date NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+
+
 --
 -- Indexes for dumped tables
 --
