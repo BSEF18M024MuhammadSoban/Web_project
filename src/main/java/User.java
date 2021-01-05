@@ -86,10 +86,11 @@ public class User {
             sql = "UPDATE user set name = ?, password = ?, email = ?, role = ?, date_of_birth = STR_TO_DATE(?, '%d-%m-%Y')";
             int response = db.execute(sql,name,password,email,role,dateOfBirth);
             if(response!=0)
-                return "{\"status\":true, \"result\":\"account updated successfully\"}";
-            else
-                return "{\"status\":false, \"result\":\"account could not be updated\"}";
+                return "{\"status\":true, \"result\":\"account updated successfully\", \"name\":\""+name+"\", \"role\":\""+role+"\",\"dateOfBirth\":\""+dateOfBirth+"\"}";
+            return "{\"status\":false, \"result\":\"account could not be updated\"}";
         }
+        return "{\"status\":false, \"result\":\"account could not be updated\"}";
+
 
 
         /*
@@ -102,7 +103,7 @@ public class User {
                 => role
                 => id: this is the id of user whose record is to update
                 maybe some values are null so if a value is null/ empty string then that field must not be update
-            data from session: user_role
+            data from session: user_role             ==========>>>>>>>No ye zabardasti kry user pr no field should be empty, mazak thori ho rha hai :/
             ---------------------------------
             OUTPUTS
             ---------------------------------
@@ -118,12 +119,13 @@ public class User {
                 2. if record is not updated
                     return status=false, error="Could not perform action"
         */
-        return "";
     }
     private static String logoutUser(HttpServletRequest request) throws SQLException, ClassNotFoundException {
+        HttpSession session = request.getSession();
+        session.invalidate();
+        return "{\"status\":true, \"result\":\"You are logged out successfully\"}";
         // simply empty the session
         // return status=true, result="user is logout successfully"
-        return "";
     }
     private static String createUser(HttpServletRequest request) throws SQLException, ClassNotFoundException {
         String name = request.getParameter("name");
