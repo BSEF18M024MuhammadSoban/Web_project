@@ -3,6 +3,7 @@ import javax.servlet.http.HttpSession;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.Random;
 
 public class User {
     public static String performAction(HttpServletRequest request) throws SQLException, ClassNotFoundException {
@@ -15,9 +16,10 @@ public class User {
             case "logout":
                 return User.logoutUser(request);
             case "sent forget password email":
-                break;
+                return User.sendMail(request);
             case "verify code":
-                break;
+
+            break;
             case "set password":
                 break;
             case "update profile":
@@ -36,7 +38,7 @@ public class User {
         ResultSet result = db.getData(sql, username, username, password);
 
         if(result.next()) {
-            int id = result.getInt(1);
+            String id = result.getString(1);
             String role = result.getString(2);
 
             HttpSession session = request.getSession();
@@ -67,37 +69,56 @@ public class User {
     private static String updateUser(HttpServletRequest request) throws SQLException, ClassNotFoundException {
         HttpSession session = request.getSession();
         String name = request.getParameter("name");
-        String password = request.getParameter("password");
+        String password = request.getParameter("newPassword");
         String email = request.getParameter("email");
-        String role = request.getParameter("role");
         String dateOfBirth = request.getParameter("dateOfBirth");
-
-
+        String id = request.getParameter("id");
+        String role = request.getParameter("role");
         if(session.getAttribute("user_id")==null)
-            return "{\"status\":false, \"result\":\"You are not logged in\"}";
+            return "{\"status\":false, \"error\":\"You are not logged in\"}";
 
         DatabaseConnector db = new DatabaseConnector();
 
         String emailDuplicateCheck = "SELECT email FROM user WHERE user.email = ?;";
 
         ResultSet emailResult = db.getData(emailDuplicateCheck,email);
+
         if(emailResult.next())
             return "{\"status\":false, \"error\":\"Email already registered\"}";
-
-        String sql = "SELECT id from user where user.id=?";
-
-        ResultSet result = db.getData(sql,session.getAttribute("user_id"));
+        if(!id.equals(session.getAttribute("user_id")) && !session.getAttribute("user_role").equals("admin"))
+            return "{\"status\":false, \"error\":\"You are not authorized to perform this action\"}";
+        String sql;
+        ResultSet result;
+        if(id.equals(session.getAttribute("user_id"))){
+            sql = "select * from user where id=? and password=md5(?)";
+            result = db.getData(sql, id, request.getParameter("currentPassword"));
+        }
+        else {
+            sql = "select * from user where id=?";
+            result = db.getData(sql, id);
+        }
 
         if(result.next())
         {
-            sql = "UPDATE user set name = ?, password = ?, email = ?, role = ?, date_of_birth = STR_TO_DATE(?, '%d-%m-%Y')";
-            int response = db.execute(sql,name,password,email,role,dateOfBirth);
+            if(name==null || name.equals(""))
+                name=result.getString("name");
+            if(role==null || role.equals(""))
+                role=result.getString("role");
+            if(email==null || email.equals(""))
+                email=result.getString("email");
+            if(dateOfBirth==null || dateOfBirth.equals(""))
+                dateOfBirth = result.getString("date_of_birth");
+            sql = "UPDATE user set name = ?, password = md5(?), email = ?, date_of_birth = ?, role=? where id=?";
+            if(password==null || password.equals("")) {
+                password=result.getString("password");
+                sql = "UPDATE user set name = ?, password = ?, email = ?, date_of_birth = ?, role=? where id=?";
+            }
+            int response = db.execute(sql,name,password,email,dateOfBirth, role, id);
             if(response!=0)
                 return "{\"status\":true, \"result\":\"account updated successfully\", \"name\":\""+name+"\", \"role\":\""+role+"\",\"dateOfBirth\":\""+dateOfBirth+"\"}";
-            return "{\"status\":false, \"result\":\"account could not be updated\"}";
+            return "{\"status\":false, \"error\":\"account could not be updated\"}";
         }
-        return "{\"status\":false, \"result\":\"account could not be updated\"}";
-
+        return "{\"status\":false, \"error\":\"User Error\"}";
 
 
         /*
@@ -105,9 +126,10 @@ public class User {
             -----------------------------
             data received from front-end:
                 => name
-                => password
+                => currentPassword
                 => dateOfBirth
                 => role
+                => newPassword(can be null)
                 => id: this is the id of user whose record is to update
                 maybe some values are null so if a value is null/ empty string then that field must not be update
             data from session: user_role             ==========>>>>>>>No ye zabardasti kry user pr no field should be empty, mazak thori ho rha hai :/
@@ -120,7 +142,7 @@ public class User {
                     status=true, result="Profile updated successfully", name, role, dateOfBirth, id
             Error:
                 1. if user is not logged in (session.user_id is null)
-                    OR session.user_id!=request.id and session.user_role!="admin" (means someone tries to update profile of others and he is not even admin)
+                    OR currentPasswordValidationFails OR session.user_id!=request.id and session.user_role!="admin" (means someone tries to update profile of others and he is not even admin)
                     return
                         status=false, error="You are not authorized for this action"
                 2. if record is not updated
@@ -139,7 +161,7 @@ public class User {
         String username = request.getParameter("username");
         String password = request.getParameter("password");
         String email = request.getParameter("email");
-        String role = request.getParameter("role");
+        //String role = request.getParameter("role");
         String dateOfBirth = request.getParameter("dateOfBirth");
 
         DatabaseConnector db = new DatabaseConnector();
@@ -156,13 +178,13 @@ public class User {
         if(emailResult.next())
             return "{\"status\":false, \"error\":\"Email already registered\"}";
 
-        String sql = "INSERT INTO user (name, username, password, email, role, date_of_birth) VALUES (?,?,md5(?),?,?,STR_TO_DATE(?, '%d-%m-%Y'))";
-        int response = db.execute(sql,name, username, password, email, role, dateOfBirth);
+        String sql = "INSERT INTO user (name, username, password, email, role, date_of_birth) VALUES (?,?,md5(?),?,?,?)";
+        int response = db.execute(sql,name, username, password, email, "guest", dateOfBirth);
         System.out.println(response);
         if(response != 0)
             return "{\"status\":true, \"result\":\"Profile Created Successfully\"}";
         else
-            return "{\"status\":false, \"result\":\"Profile Could not be created\"}";
+            return "{\"status\":false, \"error\":\"Profile Could not be created\"}";
 
         /*
             INPUTS
@@ -185,5 +207,27 @@ public class User {
                 2. if user is not created
                     return status=false, error=unable to perform action
         */
+    }
+    private static String sendMail(HttpServletRequest request) throws SQLException, ClassNotFoundException {
+        String email = request.getParameter("email");
+        HttpSession session = request.getSession();
+        DatabaseConnector db= new DatabaseConnector();
+        String emailDuplicateCheck = "SELECT id, name FROM user WHERE user.email = ?;";
+        ResultSet emailResult = db.getData(emailDuplicateCheck,email);
+        if(emailResult.next()){
+            String id = emailResult.getString("id");
+            session.setAttribute("verify_id", id);
+            Random rand = new Random();
+            String code = String.valueOf(rand.nextInt(1000000-100000)+100000);
+            session.setAttribute("verify_code", code);
+            String msg = "Hey "+emailResult.getString("name")+"! Your Verification code is: "+code;
+            String subject = "Forget Password Verification Code";
+            if(MailSender.sendMail(email, subject, msg))
+                return "{\"status\":true, \"result\":\"Verification code sent, check email\"}";
+            else
+                return "{\"status\":false, \"error\":\"Could not send email\"}";
+        }
+        else
+            return "{\"status\":false, \"error\":\"Invalid Email\"}";
     }
 }

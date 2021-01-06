@@ -10,6 +10,9 @@ public class APIHandler extends HttpServlet {
         // it defines response type is json
         response.setContentType("application/json");
         // every request must have actionType
+        ServletConfig config=getServletConfig();
+        DatabaseConnector.initDatabaseStuff(config.getInitParameter("MySQL_HOST"), config.getInitParameter("MySQL_USER"), config.getInitParameter("MySQL_PASSWORD"), config.getInitParameter("MySQL_DATABASE"));
+        MailSender.initMailSender(config.getInitParameter("MAIL_HOST"), config.getInitParameter("MAIL_PORT"), config.getInitParameter("MAIL_USERNAME"), config.getInitParameter("MAIL_PASSWORD"));
         String actionType = request.getParameter("actionType");
         try {
             switch (actionType) {

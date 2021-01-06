@@ -7,10 +7,42 @@
   <servlet>
     <servlet-name>API_Handling</servlet-name>
     <servlet-class>APIHandler</servlet-class>
+    <init-param>
+      <param-name>MySQL_HOST</param-name>
+      <param-value>jdbc:mysql://localhost:3306/</param-value>
+    </init-param>
+    <init-param>
+      <param-name>MySQL_USER</param-name>
+      <param-value>root</param-value>
+    </init-param>
+    <init-param>
+      <param-name>MySQL_PASSWORD</param-name>
+      <param-value></param-value>
+    </init-param>
+    <init-param>
+      <param-name>MAIL_HOST</param-name>
+      <param-value>smtp.gmail.com</param-value>
+    </init-param>
+    <init-param>
+      <param-name>MAIL_PORT</param-name>
+      <param-value>465</param-value>
+    </init-param>
+    <init-param>
+      <param-name>MAIL_USERNAME</param-name>
+      <param-value>kashift99@gmail.com</param-value>
+    </init-param>
+    <init-param>
+      <param-name>MAIL_PASSWORD</param-name>
+      <param-value>hidhumyxgeptmwuv</param-value>
+    </init-param>
+    <init-param>
+      <param-name>MySQL_DATABASE</param-name>
+      <param-value>teammanagement</param-value>
+    </init-param>
+
   </servlet>
   <servlet-mapping>
     <servlet-name>API_Handling</servlet-name>
     <url-pattern>/api_handler</url-pattern>
   </servlet-mapping>
-
 </web-app>

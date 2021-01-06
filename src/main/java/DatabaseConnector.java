@@ -1,12 +1,19 @@
 import java.sql.*;
 
 public class DatabaseConnector {
-    private final String MYSQL_SERVER = "jdbc:mysql://localhost:3306/";
-    private final String dbDriver = "com.mysql.jdbc.Driver";
-    private final String MYSQL_USERNAME = "root";
-    private final String MYSQL_PASSWORD = "";
-    private final String MYSQL_DATABASE = "teammanagement";
+    private static String MYSQL_SERVER;
+    private static String dbDriver = "com.mysql.jdbc.Driver";
+    private static String MYSQL_USERNAME;
+    private static String MYSQL_PASSWORD;
+    private static String MYSQL_DATABASE;
     private Connection conn;
+    public static void initDatabaseStuff(String host, String uname, String pass, String db)
+    {
+        MYSQL_SERVER = host;
+        MYSQL_USERNAME = uname;
+        MYSQL_PASSWORD = pass;
+        MYSQL_DATABASE = db;
+    }
     public DatabaseConnector()
             throws SQLException, ClassNotFoundException
     {

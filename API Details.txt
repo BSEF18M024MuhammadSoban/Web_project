@@ -1,0 +1,17 @@
+USER RELATED TASKS
+------------------
+LOGIN:
+	=>request
+		-actionType: "user"
+		-action: "login"
+		-username: it will be email or username of the user to login
+		-password: it will be password of user to login
+	=>response:
+		-status: true|false
+		if status == true
+			-result: "You are logged in"
+			-role: role of the user will be sent to front-end for further page to load
+		else
+			-error: reason of failure (invalid password etc)
+--------------------
+
