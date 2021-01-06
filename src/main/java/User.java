@@ -244,7 +244,7 @@ public class User {
         HttpSession session = request.getSession();
         DatabaseConnector db = new DatabaseConnector();
 
-        String sql = "UPDATE user SET password = ? WHERE id = ?";
+        String sql = "UPDATE user SET password = md5(?) WHERE id = ?";
 
         int result = db.execute(sql,newPassword,session.getAttribute("verify_id"));
 
