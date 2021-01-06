@@ -85,31 +85,31 @@ Update Profile:
 	=>request
 		-actionType: "user"
 		-action: "update profile"
-		-name: Personal name of user
-		-password: it will be new password of user to login
-		-email: unique email
-		-dateOfBirth: yyyy-mm-dd
-		-id: database id of user to update
-		-role: role of current user
+		-name: Personal name of user (can be null for not changing)
+		-newPassword: it will be new password of user to login ( can be null for not changing)
+		-currentPassword: it will be current password for user (for verification, if admin is updating profile of other user, then it is null/empty)
+		-email: unique email(can be null for not changing)
+		-dateOfBirth: date of birth to update ( can be null if dont want to change)
+		-id: id of user (for updating user data )
+		-role: role of current user ( can be null, this field is only sent by admins to update profile of any user)
 
 	=>response:
 		-status: true|false
 		if status == true
 			-result: "Profile Updated Successfully"
-			-role: role of the user (i.e.guest) will be sent to front-end for further page to load
+			-role: role of the user will be sent to front-end for further page to load
 		else
-			-error: reason of failure (invalid email etc)
+			-error: reason of failure (invalid email, not authorized to perform action etc)
 ---------------------------------
 Delete User:
 	=>request
 		-actionType: "user"
 		-action: "delete user"
-		-session: current session 
-		-id: database id of user to delete 
+		-id: database id of user to delete
 
 	=>response:
 		-status: true|false
 		if status == true
 			-result: "deleted  Successfully"
 		else
-			-error: reason of failure (user itself or admin can delete only)
+			-error: reason of failure (only admins can delete, authorization error)
