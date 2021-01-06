@@ -1,5 +1,6 @@
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import javax.xml.crypto.Data;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -18,10 +19,9 @@ public class User {
             case "sent forget password email":
                 return User.sendMail(request);
             case "verify code":
-
-            break;
+                return User.verifyCode(request);
             case "set password":
-                break;
+                return User.setPassword(request);
             case "update profile":
                 return User.updateUser(request);
             case "delete user":
@@ -229,5 +229,28 @@ public class User {
         }
         else
             return "{\"status\":false, \"error\":\"Invalid Email\"}";
+    }
+    private  static String verifyCode(HttpServletRequest request) throws SQLException, ClassNotFoundException{
+        HttpSession session = request.getSession();
+        String code = request.getParameter("verify_code");
+
+        if(code.equals(session.getAttribute("verify_code"))){
+            return "{\"status\":true, \"result\":\"Verification done successfully\"}";
+        }
+        return "{\"status\":true, \"error\":\"Verification code didn't match!\"}";
+    }
+    private  static String setPassword(HttpServletRequest request) throws SQLException, ClassNotFoundException{
+        String newPassword = request.getParameter("password");
+        HttpSession session = request.getSession();
+        DatabaseConnector db = new DatabaseConnector();
+
+        String sql = "UPDATE user SET password = ? WHERE id = ?";
+
+        int result = db.execute(sql,newPassword,session.getAttribute("verify_id"));
+
+        if(result != 0){
+            return "{\"status\":true, \"result\":\"New Password Updated Successfully\"}";
+        }
+        return "{\"status\":true, \"error\":\"Password could not be updated!\"}";
     }
 }
