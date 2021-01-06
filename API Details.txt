@@ -15,3 +15,93 @@ LOGIN:
 			-error: reason of failure (invalid password etc)
 --------------------
 
+SignUp:
+	=>request
+		-actionType: "user"
+		-action: "signup"
+		-name: Personal name of user
+		-username: unique user name to be assigned
+		-password: it will be password of user to login
+		-email: unique email
+		-dateOfBirth: yyyy-mm-dd
+
+	=>response:
+		-status: true|false
+		if status == true
+			-result: "Profile Created Successfully"
+			-role: role of the user (i.e.guest) will be sent to front-end for further page to load
+		else
+			-error: reason of failure (invalid username or email password etc)
+--------------------------------
+LogOut:
+	=>request
+		-actionType: "user"
+		-action: "logout"
+		-session: current session 
+
+	=>response:
+		-status: true|false
+		if status == true
+			-result: "logged out Successfully"
+-----------------------------------------------------------
+Forget Password:
+	=>request
+		-actionType: "user"
+		-action: "sent forget password email"
+		-email: registered email
+		-session: current session 
+
+	=>response:
+		-status: true|false
+		if status == true
+			-result: "Verification code sent, check email"
+		else
+			-error: reason of failure (Could not send email or invalid email etc)
+-----------------------------
+Set Password:
+	=>request
+		-actionType: "user"
+		-action: "set password"
+		-verificationCode: Verification code sent on email
+		-session: current session 
+		-password: it will be new password of user to login
+
+	=>response:
+		-status: true|false
+		if status == true
+			-result: "Password Changed"
+		else
+			-error: reason of failure (Verification code mismatch etc)
+-----------------------------
+Update Profile:
+	=>request
+		-actionType: "user"
+		-action: "update profile"
+		-name: Personal name of user
+		-password: it will be new password of user to login
+		-email: unique email
+		-dateOfBirth: yyyy-mm-dd
+		-id: database id of user to update
+		-role: role of current user
+
+	=>response:
+		-status: true|false
+		if status == true
+			-result: "Profile Updated Successfully"
+			-role: role of the user (i.e.guest) will be sent to front-end for further page to load
+		else
+			-error: reason of failure (invalid email etc)
+---------------------------------
+Delete User:
+	=>request
+		-actionType: "user"
+		-action: "delete user"
+		-session: current session 
+		-id: database id of user to delete 
+
+	=>response:
+		-status: true|false
+		if status == true
+			-result: "deleted  Successfully"
+		else
+			-error: reason of failure (user itself or admin can delete only)
