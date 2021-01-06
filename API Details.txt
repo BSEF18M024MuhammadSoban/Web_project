@@ -20,24 +20,23 @@ SignUp:
 		-actionType: "user"
 		-action: "signup"
 		-name: Personal name of user
-		-username: unique user name to be assigned
-		-password: it will be password of user to login
-		-email: unique email
-		-dateOfBirth: yyyy-mm-dd
+		-username: unique username to be assigned
+		-password: password of user
+		-email: email address
+		-dateOfBirth: date of birth
 
 	=>response:
 		-status: true|false
 		if status == true
 			-result: "Profile Created Successfully"
-			-role: role of the user (i.e.guest) will be sent to front-end for further page to load
+			-role: role of the user will be sent to front-end for further page to load
 		else
-			-error: reason of failure (invalid username or email password etc)
+			-error: reason of failure (email, username already taken etc)
 --------------------------------
 LogOut:
 	=>request
 		-actionType: "user"
 		-action: "logout"
-		-session: current session 
 
 	=>response:
 		-status: true|false
@@ -49,7 +48,6 @@ Forget Password:
 		-actionType: "user"
 		-action: "sent forget password email"
 		-email: registered email
-		-session: current session 
 
 	=>response:
 		-status: true|false
@@ -58,20 +56,30 @@ Forget Password:
 		else
 			-error: reason of failure (Could not send email or invalid email etc)
 -----------------------------
-Set Password:
-	=>request
+verify Code:
+    =>request:
+        -actionType: "user"
+        -action: "verify code"
+        -verify_code: it will be a 6-digit code to verify
+    =>response:
+        -status: true|false
+        if status== true
+            -result: "Code is verified, enter password to reset"
+        else
+            -error: "Invalid code, try again"
+-----------------------------
+reSet Password:
+	=>request:
 		-actionType: "user"
 		-action: "set password"
-		-verificationCode: Verification code sent on email
-		-session: current session 
-		-password: it will be new password of user to login
+		-password: it will be new password of user to reset
 
 	=>response:
 		-status: true|false
 		if status == true
 			-result: "Password Changed"
 		else
-			-error: reason of failure (Verification code mismatch etc)
+			-error: reason of failure (verification failed etc)
 -----------------------------
 Update Profile:
 	=>request
